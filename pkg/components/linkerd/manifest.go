@@ -21,23 +21,13 @@ enableMonitoring: {{.EnableMonitoring}}
 identityTrustAnchorsPEM: |
 {{ .Cert.CA }}
 
-global:
-  prometheusUrl: {{ .PrometheusURL }}
-
 identity:
   issuer:
-    crtExpiry: {{ .Cert.Expiry }}
     tls:
       crtPEM: |
 {{ .Cert.Cert }}
       keyPEM: |
 {{ .Cert.Key }}
-
-prometheus:
-  enabled: false
-
-grafana:
-  enabled: false
 
 # controller configuration
 controllerReplicas: {{.ControllerReplicas}}
@@ -46,21 +36,16 @@ controllerReplicas: {{.ControllerReplicas}}
 // Contents of the values-ha.yaml file are copied here verbatim. Necessary fields are overridden in
 // `chartValuesTmpl` using user provided information.
 const valuesHA = `
-# This values.yaml file contains the values needed to enable HA mode.
-# Usage:
-#   helm install -f values.yaml -f values-ha.yaml
-
 enablePodAntiAffinity: true
 
-global:
-  # proxy configuration
-  proxy:
-    resources:
-      cpu:
-        request: 100m
-      memory:
-        limit: 250Mi
-        request: 20Mi
+# proxy configuration
+proxy:
+  resources:
+    cpu:
+      request: 100m
+    memory:
+      limit: 250Mi
+      request: 20Mi
 
 # controller configuration
 controllerReplicas: 3
@@ -72,7 +57,6 @@ controllerResources: &controller_resources
     limit: 250Mi
     request: 50Mi
 destinationResources: *controller_resources
-publicAPIResources: *controller_resources
 
 # identity configuration
 identityResources:
@@ -81,26 +65,8 @@ identityResources:
     limit: 250Mi
     request: 10Mi
 
-# grafana configuration
-grafana:
-  resources:
-    cpu: *controller_resources_cpu
-    memory:
-      limit: 1024Mi
-      request: 50Mi
-
 # heartbeat configuration
 heartbeatResources: *controller_resources
-
-# prometheus configuration
-prometheus:
-  resources:
-    cpu:
-      limit: ""
-      request: 300m
-    memory:
-      limit: 8192Mi
-      request: 300Mi
 
 # proxy injector configuration
 proxyInjectorResources: *controller_resources
@@ -109,9 +75,5 @@ webhookFailurePolicy: Fail
 # service profile validator configuration
 spValidatorResources: *controller_resources
 
-# tap configuration
-tapResources: *controller_resources
-
-# web configuration
-webResources: *controller_resources
+enablePSP: true
 `
